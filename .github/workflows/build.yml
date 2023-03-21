@@ -1,0 +1,42 @@
+name: Build Fernflower and publish code as artifact
+
+on:
+  workflow_dispatch:
+      inputs:
+        name:
+          description: "What is your name?"
+          default: "Anonymous"
+  push:
+      branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
+      - name: set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+           java-version: '17'
+           distribution: 'temurin'
+           cache: gradle
+
+      - name: Build with Gradle
+        run: ./gradlew clean build
+
+      - name: Zip code
+        run: zip -r code.zip .
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: code
+          path: code.zip
+
+      - name: Upload Fernflower artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: fernflower
+          path: build/libs/fernflower.jar
